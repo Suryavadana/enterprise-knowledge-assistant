@@ -4,6 +4,8 @@ import SignupForm from './components/SignupForm';
 import ChatWindow from './components/ChatWindow';
 import type { ChatMessage } from './components/ChatWindow';
 import Sidebar from './components/Sidebar';
+import DocumentUpload from './components/DocumentUpload';
+import DocumentList from './components/DocumentList';
 import { useState } from 'react';
 
 function App() {
@@ -11,6 +13,7 @@ function App() {
   const [showSignup, setShowSignup] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [conversationId, setConversationId] = useState<number | null>(null);
+  const [documentRefreshTrigger, setDocumentRefreshTrigger] = useState(0);
 
   if (isLoading) return <p>Loading...</p>;
 
@@ -34,6 +37,8 @@ function App() {
       />
       <div>
         <button onClick={logout}>Log out</button>
+        <DocumentUpload onUploadSuccess={() => setDocumentRefreshTrigger((prev) => prev + 1)} />
+        <DocumentList refreshTrigger={documentRefreshTrigger} />
         <ChatWindow
           messages={messages}
           conversationId={conversationId}
