@@ -1,0 +1,44 @@
+import { useEffect, useState } from "react";
+import { getDocuments } from "../api/documents";
+import type { DocumentSummary } from "../api/documents";
+import { useAuth } from "../context/AuthContext";
+
+interface DocumentListProps {
+  refreshTrigger: number;
+}
+
+export default function DocumentList({ refreshTrigger }: DocumentListProps) {
+  const { token } = useAuth();
+
+  const [documents, setDocuments] = useState<DocumentSummary[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!token) return;
+
+    getDocuments(token)
+      .then(setDocuments)
+      .catch((err) => setError(err instanceof Error ? err.message : "Failed to load documents"))
+      .finally(() => setIsLoading(false));
+  }, [token, refreshTrigger]); // re-fetch whenever the parent bumps refreshTrigger (e.g. after a new upload)
+
+  return (
+    <div>
+      {isLoading && <p className="muted-text">Loading...</p>}
+      {error && <p className="error-text">{error}</p>}
+
+      <ul className="doc-list">
+        {documents.map((document) => (
+          <li key={document.id} className="doc-item">
+            <span className="doc-type-badge">{document.fileType}</span>
+            <span className="doc-filename">{document.filename}</span>
+            <span className="doc-date">
+              {new Date(document.uploadedAt).toLocaleString()}
+            </span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
