@@ -59,8 +59,7 @@ public class SecurityConfig {
                         //failure being fixed here
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/api/auth/signup", "/api/auth/login").permitAll()
-                        //TEMPORARY - remove this line along with TestController once GeminiService is confirmed working
-                        .requestMatchers("/api/test/gemini").permitAll()
+
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);

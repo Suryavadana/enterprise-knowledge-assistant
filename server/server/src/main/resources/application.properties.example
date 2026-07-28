@@ -12,3 +12,7 @@ spring.jpa.database-platform=org.hibernate.dialect.MySQLDialect
 gemini.api.key=your-gemini-key-here
 jwt.secret=your-base64-secret-here
 spring.datasource.password=your-db-password-here
+chroma.base-url=http://localhost:8000
+chroma.tenant=default_tenant
+chroma.database=default_database
+chroma.collection-id=your-chroma-collection-id-here

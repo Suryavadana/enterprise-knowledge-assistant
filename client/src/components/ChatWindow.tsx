@@ -1,11 +1,13 @@
 import { useState } from "react";
 import type { Dispatch, KeyboardEvent, SetStateAction } from "react";
 import { sendMessage } from "../api/chat";
+import type { Citation } from "../api/chat";
 import { useAuth } from "../context/AuthContext";
 
 export interface ChatMessage {
   role: "user" | "assistant";
   content: string;
+  citations?: Citation[];
 }
 
 interface ChatWindowProps {
@@ -52,7 +54,10 @@ export default function ChatWindow({
     try {
       const response = await sendMessage(token, { conversationId, message: text });
       setConversationId(response.conversationId);
-      setMessages((prev) => [...prev, { role: "assistant", content: response.reply }]);
+      setMessages((prev) => [
+        ...prev,
+        { role: "assistant", content: response.reply, citations: response.citations },
+      ]);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to send message");
     } finally {
@@ -67,31 +72,43 @@ export default function ChatWindow({
   }
 
   return (
-    <div>
-      <div>
+    <div className="chat-window">
+      <div className="chat-messages">
         {messages.map((message, index) => (
-          <div
-            key={index}
-            style={{ textAlign: message.role === "user" ? "right" : "left" }}
-          >
-            <strong>{message.role === "user" ? "You" : "Assistant"}:</strong>{" "}
-            {message.content}
+          <div key={index} className={`message-row ${message.role}`}>
+            <div className="message-bubble">
+              <span className="message-role">
+                {message.role === "user" ? "You" : "Assistant"}
+              </span>
+              {message.content}
+              {message.citations && message.citations.length > 0 && (
+                <div className="citations">
+                  {[...new Set(message.citations.map((c) => c.filename))].map((filename) => (
+                    <span key={filename} className="citation-chip">
+                      {filename}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         ))}
       </div>
 
-      {error && <p style={{ color: "red" }}>{error}</p>}
+      {error && <p className="error-text">{error}</p>}
 
-      <input
-        type="text"
-        value={input}
-        onChange={(e) => setInput(e.target.value)}
-        onKeyDown={handleKeyDown}
-        disabled={isSending}
-      />
-      <button onClick={handleSend} disabled={isSending}>
-        {isSending ? "Sending..." : "Send"}
-      </button>
+      <div className="chat-input-row">
+        <input
+          type="text"
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyDown={handleKeyDown}
+          disabled={isSending}
+        />
+        <button className="btn btn-primary" onClick={handleSend} disabled={isSending}>
+          {isSending ? "Sending..." : "Send"}
+        </button>
+      </div>
     </div>
   );
 }

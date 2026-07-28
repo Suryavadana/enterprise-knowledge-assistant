@@ -15,13 +15,13 @@ function App() {
   const [conversationId, setConversationId] = useState<number | null>(null);
   const [documentRefreshTrigger, setDocumentRefreshTrigger] = useState(0);
 
-  if (isLoading) return <p>Loading...</p>;
+  if (isLoading) return <p className="muted-text">Loading...</p>;
 
   if (!token) {
     return (
-      <div>
+      <div className="auth-page">
         {showSignup ? <SignupForm /> : <LoginForm />}
-        <button onClick={() => setShowSignup(!showSignup)}>
+        <button className="btn-text" onClick={() => setShowSignup(!showSignup)}>
           {showSignup ? "Already have an account? Log in" : "Don't have an account? Sign up"}
         </button>
       </div>
@@ -29,16 +29,20 @@ function App() {
   }
 
   return (
-    <div style={{ display: "flex" }}>
+    <div className="app-shell">
       <Sidebar
         setMessages={setMessages}
         setConversationId={setConversationId}
         activeConversationId={conversationId}
       />
-      <div>
-        <button onClick={logout}>Log out</button>
-        <DocumentUpload onUploadSuccess={() => setDocumentRefreshTrigger((prev) => prev + 1)} />
-        <DocumentList refreshTrigger={documentRefreshTrigger} />
+      <div className="main-content">
+        <div className="topbar">
+          <button className="btn" onClick={logout}>Log out</button>
+        </div>
+        <div className="card">
+          <DocumentUpload onUploadSuccess={() => setDocumentRefreshTrigger((prev) => prev + 1)} />
+          <DocumentList refreshTrigger={documentRefreshTrigger} />
+        </div>
         <ChatWindow
           messages={messages}
           conversationId={conversationId}

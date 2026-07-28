@@ -63,23 +63,23 @@ export default function Sidebar({
   }
 
   return (
-    <div>
-      <button onClick={handleNewConversation}>+ New conversation</button>
+    <div className="sidebar">
+      <button className="btn" onClick={handleNewConversation}>+ New conversation</button>
 
-      {isLoading && <p>Loading...</p>}
-      {error && <p style={{ color: "red" }}>{error}</p>}
+      {isLoading && <p className="muted-text">Loading...</p>}
+      {error && <p className="error-text">{error}</p>}
 
-      <ul style={{ listStyle: "none", padding: 0 }}>
+      <ul className="sidebar-list">
         {conversations.map((conversation) => (
-          <li key={conversation.id}>
+          <li
+            key={conversation.id}
+            className={conversation.id === activeConversationId ? "sidebar-item active" : "sidebar-item"}
+          >
             <a
               href="#"
               onClick={(e) => {
                 e.preventDefault();
                 handleSelect(conversation);
-              }}
-              style={{
-                fontWeight: conversation.id === activeConversationId ? "bold" : "normal",
               }}
             >
               Conversation {conversation.id} - {new Date(conversation.createdAt).toLocaleString()}

@@ -37,6 +37,7 @@ export default function DocumentUpload({ onUploadSuccess }: DocumentUploadProps)
 
   return (
     <div>
+      <h2>Documents</h2>
       <input
         type="file"
         accept=".pdf,.docx,.txt"
@@ -44,9 +45,9 @@ export default function DocumentUpload({ onUploadSuccess }: DocumentUploadProps)
         disabled={isUploading}
       />
 
-      {isUploading && <p>Uploading...</p>}
-      {uploaded && <p style={{ color: "green" }}>Uploaded {uploaded.filename}</p>}
-      {error && <p style={{ color: "red" }}>{error}</p>}
+      {isUploading && <p className="muted-text">Uploading...</p>}
+      {uploaded && <p className="muted-text">Uploaded {uploaded.filename}</p>}
+      {error && <p className="error-text">{error}</p>}
     </div>
   );
 }

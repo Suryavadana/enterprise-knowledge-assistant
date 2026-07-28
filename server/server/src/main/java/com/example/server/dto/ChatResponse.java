@@ -1,4 +1,6 @@
 package com.example.server.dto;
 
-public record ChatResponse(Long conversationId, String reply) {
+import java.util.List;
+
+public record ChatResponse(Long conversationId, String reply, List<Citation> citations) {
 }

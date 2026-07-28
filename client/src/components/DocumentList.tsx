@@ -25,14 +25,17 @@ export default function DocumentList({ refreshTrigger }: DocumentListProps) {
 
   return (
     <div>
-      {isLoading && <p>Loading...</p>}
-      {error && <p style={{ color: "red" }}>{error}</p>}
+      {isLoading && <p className="muted-text">Loading...</p>}
+      {error && <p className="error-text">{error}</p>}
 
-      <ul style={{ listStyle: "none", padding: 0 }}>
+      <ul className="doc-list">
         {documents.map((document) => (
-          <li key={document.id}>
-            {document.filename} ({document.fileType}) -{" "}
-            {new Date(document.uploadedAt).toLocaleString()}
+          <li key={document.id} className="doc-item">
+            <span className="doc-type-badge">{document.fileType}</span>
+            <span className="doc-filename">{document.filename}</span>
+            <span className="doc-date">
+              {new Date(document.uploadedAt).toLocaleString()}
+            </span>
           </li>
         ))}
       </ul>

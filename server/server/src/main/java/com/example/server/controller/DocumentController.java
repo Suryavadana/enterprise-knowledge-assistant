@@ -19,6 +19,7 @@ import com.example.server.entity.Document;
 import com.example.server.entity.User;
 import com.example.server.repository.DocumentRepository;
 import com.example.server.service.CurrentUserService;
+import com.example.server.service.DocumentIndexingService;
 import com.example.server.service.TextExtractionException;
 import com.example.server.service.TextExtractionService;
 
@@ -29,14 +30,17 @@ public class DocumentController {
     private final CurrentUserService currentUserService;
     private final DocumentRepository documentRepository;
     private final TextExtractionService textExtractionService;
+    private final DocumentIndexingService documentIndexingService;
 
     public DocumentController(
             CurrentUserService currentUserService,
             DocumentRepository documentRepository,
-            TextExtractionService textExtractionService) {
+            TextExtractionService textExtractionService,
+            DocumentIndexingService documentIndexingService) {
         this.currentUserService = currentUserService;
         this.documentRepository = documentRepository;
         this.textExtractionService = textExtractionService;
+        this.documentIndexingService = documentIndexingService;
     }
 
     @GetMapping
@@ -74,6 +78,8 @@ public class DocumentController {
         document.setExtractedText(extractedText);
 
         Document saved = documentRepository.save(document);
+
+        documentIndexingService.indexDocument(saved);
 
         return ResponseEntity.ok(new DocumentSummary(
                 saved.getId(), saved.getFilename(), saved.getFileType().name(), saved.getUploadedAt()));
