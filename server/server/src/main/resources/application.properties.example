@@ -1,7 +1,10 @@
 spring.application.name=server
-spring.datasource.url=jdbc:mysql://localhost:3306/eka_db
-spring.datasource.username=root
-
+# Every value below can be overridden by an environment variable of the
+# same name (e.g. running via docker-compose) - the part after the colon
+# is just the local-dev fallback used when no such env var is set.
+spring.datasource.url=${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3306/eka_db}
+spring.datasource.username=${SPRING_DATASOURCE_USERNAME:root}
+spring.datasource.password=${SPRING_DATASOURCE_PASSWORD:your-db-password-here}
 
 spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
 
@@ -9,10 +12,10 @@ spring.jpa.hibernate.ddl-auto=update
 spring.jpa.show-sql=true
 spring.jpa.database-platform=org.hibernate.dialect.MySQLDialect
 
-gemini.api.key=your-gemini-key-here
-jwt.secret=your-base64-secret-here
-spring.datasource.password=your-db-password-here
-chroma.base-url=http://localhost:8000
+gemini.api.key=${GEMINI_API_KEY:your-gemini-key-here}
+jwt.secret=${JWT_SECRET:your-base64-secret-here}
+
+chroma.base-url=${CHROMA_BASE_URL:http://localhost:8000}
 chroma.tenant=default_tenant
 chroma.database=default_database
 chroma.collection-id=your-chroma-collection-id-here
