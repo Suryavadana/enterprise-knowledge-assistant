@@ -15,7 +15,9 @@ import com.example.server.dto.LoginRequest;
 import com.example.server.dto.LoginResponse;
 import com.example.server.dto.SignupRequest;
 import com.example.server.dto.UserResponse;
+import com.example.server.entity.PromptTemplate;
 import com.example.server.entity.User;
+import com.example.server.repository.PromptTemplateRepository;
 import com.example.server.repository.UserRepository;
 import com.example.server.service.JwtService;
 
@@ -26,11 +28,17 @@ public class AuthController {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    private final PromptTemplateRepository promptTemplateRepository;
 
-    public AuthController(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtService jwtService) {
+    public AuthController(
+            UserRepository userRepository,
+            PasswordEncoder passwordEncoder,
+            JwtService jwtService,
+            PromptTemplateRepository promptTemplateRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
+        this.promptTemplateRepository = promptTemplateRepository;
     }
 
     @PostMapping("/signup")
@@ -52,8 +60,31 @@ public class AuthController {
         user.setPassword(passwordEncoder.encode(request.password()));
 
         User saved = userRepository.save(user);
+
+        seedDefaultPromptTemplates(saved);
 //UserResponse.from(saved) — good sign it's converting the saved User entity into a separate response DTO rather than returning the entity directly (which would risk accidentally serializing the password hash back to the client).
         return ResponseEntity.status(HttpStatus.CREATED).body(UserResponse.from(saved));
+    }
+
+    private void seedDefaultPromptTemplates(User user) {
+        promptTemplateRepository.save(
+                newPromptTemplate(user, "Summarize document", "Please summarize the following in 3 bullet points:"));
+        promptTemplateRepository.save(newPromptTemplate(
+                user,
+                "Explain like I'm new to this",
+                "Explain the following concept in simple terms, as if to someone new to the topic:"));
+        promptTemplateRepository.save(newPromptTemplate(
+                user,
+                "Generate test cases",
+                "Generate a list of test cases (including edge cases) for the following:"));
+    }
+
+    private PromptTemplate newPromptTemplate(User user, String title, String content) {
+        PromptTemplate promptTemplate = new PromptTemplate();
+        promptTemplate.setUser(user);
+        promptTemplate.setTitle(title);
+        promptTemplate.setContent(content);
+        return promptTemplate;
     }
 
     @PostMapping("/login")
