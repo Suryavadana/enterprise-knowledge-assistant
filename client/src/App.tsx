@@ -6,14 +6,20 @@ import type { ChatMessage } from './components/ChatWindow';
 import Sidebar from './components/Sidebar';
 import DocumentUpload from './components/DocumentUpload';
 import DocumentList from './components/DocumentList';
+import LandingPage from './components/LandingPage';
 import { useState } from 'react';
 
 function App() {
   const { token, logout, isLoading } = useAuth();
+  const [showLanding, setShowLanding] = useState(true);
   const [showSignup, setShowSignup] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [conversationId, setConversationId] = useState<number | null>(null);
   const [documentRefreshTrigger, setDocumentRefreshTrigger] = useState(0);
+
+  if (showLanding) {
+    return <LandingPage onGetStarted={() => setShowLanding(false)} />;
+  }
 
   if (isLoading) return <p className="muted-text">Loading...</p>;
 
