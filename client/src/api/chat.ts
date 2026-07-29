@@ -21,6 +21,7 @@ export interface ChatResponse {
   conversationId: number;
   reply: string;
   citations: Citation[];
+  assistantMessageId: number;
 }
 
 // Sends a chat message, authenticated with the given bearer token. Resolves
@@ -42,4 +43,27 @@ export async function sendMessage(token: string, data: ChatRequest): Promise<Cha
   }
 
   return response.json() as Promise<ChatResponse>;
+}
+
+// Submits feedback for a specific assistant message, authenticated with the
+// given bearer token. Resolves on success (200), or throws an Error on
+// failure.
+export async function submitFeedback(
+  token: string,
+  messageId: number,
+  rating: "UP" | "DOWN",
+): Promise<void> {
+  const response = await fetch(`${BASE_URL}/api/messages/${messageId}/feedback`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ rating, comment: null }),
+  });
+
+  if (!response.ok) {
+    const message = await response.text();
+    throw new Error(message || `Request failed with status ${response.status}`);
+  }
 }

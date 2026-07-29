@@ -78,10 +78,11 @@ public class ChatController {
         assistantMessage.setConversation(conversation);
         assistantMessage.setRole(Message.Role.ASSISTANT);
         assistantMessage.setContent(reply);
-        messageRepository.save(assistantMessage);
+        assistantMessage = messageRepository.save(assistantMessage);
 
         List<Citation> citations = toCitations(chunks);
-        return ResponseEntity.ok(new ChatResponse(conversation.getId(), reply, citations));
+        return ResponseEntity.ok(
+                new ChatResponse(conversation.getId(), reply, assistantMessage.getId(), citations));
     }
 
     private Conversation resolveConversation(Long conversationId, User user) {
