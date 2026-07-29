@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { Dispatch, KeyboardEvent, SetStateAction } from "react";
-import { sendMessage } from "../api/chat";
+import { sendMessage, submitFeedback } from "../api/chat";
 import type { Citation } from "../api/chat";
 import { useAuth } from "../context/AuthContext";
 
@@ -8,6 +8,31 @@ export interface ChatMessage {
   role: "user" | "assistant";
   content: string;
   citations?: Citation[];
+  messageId?: number;
+  feedback?: "UP" | "DOWN";
+}
+
+// Feather-style thumb icons. They use stroke="currentColor" (no fill) so the
+// feedback-btn CSS classes can drive their color, the same way any other
+// text in the design system would be colored.
+function ThumbIcon({ direction }: { direction: "up" | "down" }) {
+  const upPath = "M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3";
+  const downPath = "M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17";
+
+  return (
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d={direction === "up" ? upPath : downPath} />
+    </svg>
+  );
 }
 
 interface ChatWindowProps {
@@ -56,7 +81,12 @@ export default function ChatWindow({
       setConversationId(response.conversationId);
       setMessages((prev) => [
         ...prev,
-        { role: "assistant", content: response.reply, citations: response.citations },
+        {
+          role: "assistant",
+          content: response.reply,
+          citations: response.citations,
+          messageId: response.assistantMessageId,
+        },
       ]);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to send message");
@@ -64,6 +94,26 @@ export default function ChatWindow({
       setIsSending(false);
     }
   }
+
+  // Updates the `feedback` field on the one message whose messageId matches,
+  // leaving every other message untouched. Only assistant messages ever
+  // carry a messageId, so comparing against it directly (rather than also
+  // checking message.role) is enough to target the right message - a user
+  // message's messageId is always undefined and can never equal the numeric
+  // id passed in here.
+ function handleFeedback(messageId: number, rating: "UP" | "DOWN") {
+  if (!token) return;
+
+  setMessages((prev) =>
+    prev.map((message) =>
+      message.messageId === messageId ? { ...message, feedback: rating } : message,
+    ),
+  );
+
+  submitFeedback(token, messageId, rating).catch((err) => {
+    setError(err instanceof Error ? err.message : "Failed to submit feedback");
+  });
+}
 
   function handleKeyDown(e: KeyboardEvent<HTMLInputElement>) {
     if (e.key === "Enter") {
@@ -88,6 +138,28 @@ export default function ChatWindow({
                       {filename}
                     </span>
                   ))}
+                </div>
+              )}
+              {message.messageId !== undefined && (
+                <div className="feedback-row">
+                  <button
+                    type="button"
+                    aria-label="Good response"
+                    aria-pressed={message.feedback === "UP"}
+                    className={`feedback-btn ${message.feedback === "UP" ? "selected" : ""}`}
+                    onClick={() => handleFeedback(message.messageId!, "UP")}
+                  >
+                    <ThumbIcon direction="up" />
+                  </button>
+                  <button
+                    type="button"
+                    aria-label="Bad response"
+                    aria-pressed={message.feedback === "DOWN"}
+                    className={`feedback-btn ${message.feedback === "DOWN" ? "selected" : ""}`}
+                    onClick={() => handleFeedback(message.messageId!, "DOWN")}
+                  >
+                    <ThumbIcon direction="down" />
+                  </button>
                 </div>
               )}
             </div>
