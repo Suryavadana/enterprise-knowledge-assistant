@@ -3,6 +3,7 @@ import type { Dispatch, KeyboardEvent, SetStateAction } from "react";
 import { sendMessage, submitFeedback } from "../api/chat";
 import type { Citation } from "../api/chat";
 import { useAuth } from "../context/AuthContext";
+import PromptTemplates from "./PromptTemplates";
 
 export interface ChatMessage {
   role: "user" | "assistant";
@@ -168,6 +169,8 @@ export default function ChatWindow({
       </div>
 
       {error && <p className="error-text">{error}</p>}
+
+      <PromptTemplates onSelectTemplate={setInput} />
 
       <div className="chat-input-row">
         <input
