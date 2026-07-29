@@ -40,7 +40,7 @@ public class Document {
     @Column(nullable = false)
     private FileType fileType;
 
-    @Column(columnDefinition = "LONGTEXT")
+    @Column(columnDefinition = "TEXT")
     private String extractedText;
 
     @Column(nullable = false, updatable = false)
