@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
@@ -12,6 +13,8 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestClientResponseException;
 
 import com.example.server.dto.ChromaAddRequest;
+import com.example.server.dto.ChromaCollection;
+import com.example.server.dto.ChromaCreateCollectionRequest;
 import com.example.server.dto.ChromaQueryRequest;
 import com.example.server.dto.ChromaQueryResponse;
 import com.example.server.dto.RetrievedChunk;
@@ -19,26 +22,91 @@ import com.example.server.dto.RetrievedChunk;
 @Service
 public class ChromaService {
 
-    private static final String ADD_PATH = "/api/v2/tenants/{tenant}/databases/{database}/collections/{collectionId}/add";
-    private static final String QUERY_PATH = "/api/v2/tenants/{tenant}/databases/{database}/collections/{collectionId}/query";
+    private static final String COLLECTION_NAME = "documents";
+
+    private static final String COLLECTIONS_PATH = "/api/v2/tenants/{tenant}/databases/{database}/collections";
+    private static final String ADD_PATH = COLLECTIONS_PATH + "/{collectionId}/add";
+    private static final String QUERY_PATH = COLLECTIONS_PATH + "/{collectionId}/query";
 
     private final RestClient restClient;
     private final String tenant;
     private final String database;
-    private final String collectionId;
+
+    //lazily resolved on first use and cached for the lifetime of the app - see getOrCreateCollectionId()
+    private volatile String cachedCollectionId;
 
     public ChromaService(
             @Value("${chroma.base-url}") String baseUrl,
             @Value("${chroma.tenant}") String tenant,
-            @Value("${chroma.database}") String database,
-            @Value("${chroma.collection-id}") String collectionId) {
+            @Value("${chroma.database}") String database) {
         this.tenant = tenant;
         this.database = database;
-        this.collectionId = collectionId;
         this.restClient = RestClient.builder()
                 .baseUrl(baseUrl)
                 .requestFactory(new SimpleClientHttpRequestFactory())
                 .build();
+    }
+
+    /**
+     * Resolves the id of the "documents" collection, creating it if it doesn't exist yet, and
+     * caches the result for the lifetime of the app. This lets the service self-heal after the
+     * underlying Chroma instance restarts and loses its collections (e.g. Render free tier, which
+     * has no persistent disk) without needing a hardcoded, manually-updated collection id.
+     */
+    public String getOrCreateCollectionId() {
+        String id = cachedCollectionId;
+        if (id != null) {
+            return id;
+        }
+
+        synchronized (this) {
+            if (cachedCollectionId != null) {
+                return cachedCollectionId;
+            }
+
+            List<ChromaCollection> collections;
+            try {
+                collections = restClient.get()
+                        .uri(COLLECTIONS_PATH, tenant, database)
+                        .retrieve()
+                        .body(new ParameterizedTypeReference<List<ChromaCollection>>() {});
+            } catch (RestClientResponseException ex) {
+                throw new ChromaApiException(
+                        "Chroma list-collections call failed with status " + ex.getStatusCode().value() + ": " + ex.getResponseBodyAsString(),
+                        ex);
+            } catch (RestClientException ex) {
+                throw new ChromaApiException("Failed to reach Chroma", ex);
+            }
+
+            String existingId = collections.stream()
+                    .filter(collection -> COLLECTION_NAME.equals(collection.name()))
+                    .map(ChromaCollection::id)
+                    .findFirst()
+                    .orElse(null);
+
+            if (existingId != null) {
+                cachedCollectionId = existingId;
+                return cachedCollectionId;
+            }
+
+            ChromaCollection created;
+            try {
+                created = restClient.post()
+                        .uri(COLLECTIONS_PATH, tenant, database)
+                        .body(new ChromaCreateCollectionRequest(COLLECTION_NAME))
+                        .retrieve()
+                        .body(ChromaCollection.class);
+            } catch (RestClientResponseException ex) {
+                throw new ChromaApiException(
+                        "Chroma create-collection call failed with status " + ex.getStatusCode().value() + ": " + ex.getResponseBodyAsString(),
+                        ex);
+            } catch (RestClientException ex) {
+                throw new ChromaApiException("Failed to reach Chroma", ex);
+            }
+
+            cachedCollectionId = created.id();
+            return cachedCollectionId;
+        }
     }
 
     /**
@@ -55,7 +123,7 @@ public class ChromaService {
 
         try {
             restClient.post()
-                    .uri(ADD_PATH, tenant, database, collectionId)
+                    .uri(ADD_PATH, tenant, database, getOrCreateCollectionId())
                     .body(request)
                     .retrieve()
                     .toBodilessEntity(); //success response is "{}" - nothing worth deserializing
@@ -80,7 +148,7 @@ public class ChromaService {
         ChromaQueryResponse response;
         try {
             response = restClient.post()
-                    .uri(QUERY_PATH, tenant, database, collectionId)
+                    .uri(QUERY_PATH, tenant, database, getOrCreateCollectionId())
                     .body(request)
                     .retrieve()
                     .body(ChromaQueryResponse.class);

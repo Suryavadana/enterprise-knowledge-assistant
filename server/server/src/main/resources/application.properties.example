@@ -18,4 +18,3 @@ jwt.secret=${JWT_SECRET:your-base64-secret-here}
 chroma.base-url=${CHROMA_BASE_URL:http://localhost:8000}
 chroma.tenant=default_tenant
 chroma.database=default_database
-chroma.collection-id=your-chroma-collection-id-here
