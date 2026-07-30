@@ -26,6 +26,7 @@ body {
   font-family: var(--font-body);
   font-size: 15px;
   line-height: 1.5;
+  overflow-x: hidden;
 }
 
 h1, h2, h3 {
@@ -62,6 +63,14 @@ a {
 .topbar {
   display: flex;
   justify-content: flex-end;
+}
+
+.sidebar-toggle {
+  display: none;
+}
+
+.sidebar-backdrop {
+  display: none;
 }
 
 /* ---- Buttons ---- */
@@ -204,6 +213,7 @@ a {
   display: flex;
   flex-direction: column;
   gap: 16px;
+  transition: transform 0.25s ease;
 }
 
 .sidebar-list {
@@ -368,12 +378,16 @@ a {
 
 .template-title {
   flex: 1;
+  min-width: 0;
   text-align: left;
   background: none;
   border: none;
   cursor: pointer;
   padding: 6px 8px;
   color: var(--color-slate);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .template-title:hover {
@@ -747,5 +761,77 @@ a {
 
   .landing-features {
     grid-template-columns: 1fr;
+  }
+}
+
+/* ---- Responsive (app shell / sidebar / chat / auth / documents) ---- */
+
+@media (max-width: 768px) {
+  /* Sidebar becomes an off-canvas drawer instead of a permanent column -
+     taking it out of flow with `position: fixed` means .app-shell's flex
+     row is left with just .main-content, which then naturally fills the
+     full width without any changes to .app-shell itself. */
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 100;
+    transform: translateX(-100%);
+    box-shadow: 2px 0 16px rgba(26, 35, 50, 0.15);
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+  }
+
+  .sidebar-backdrop.open {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(26, 35, 50, 0.35);
+    z-index: 90;
+  }
+
+  .topbar {
+    justify-content: space-between;
+  }
+
+  .sidebar-toggle {
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .main-content {
+    padding: 16px;
+  }
+
+  /* Message bubbles get more of the available width once there's less of
+     it to spare - applies to both the real chat and the static preview
+     mockup on the landing page, since both reuse .message-bubble. */
+  .message-bubble {
+    max-width: 88%;
+  }
+
+  .auth-page {
+    padding: 16px;
+  }
+
+  .auth-card {
+    padding: 28px 20px;
+  }
+
+  .landing-title {
+    font-size: clamp(2rem, 9vw, 4rem);
+  }
+
+  /* Let the upload date drop to its own line instead of squeezing the
+     filename down to nothing between the badge and a long timestamp. */
+  .doc-item {
+    flex-wrap: wrap;
+  }
+
+  .doc-date {
+    flex-basis: 100%;
   }
 }

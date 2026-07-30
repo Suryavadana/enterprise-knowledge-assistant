@@ -9,12 +9,19 @@ interface SidebarProps {
   setMessages: Dispatch<SetStateAction<ChatMessage[]>>;
   setConversationId: Dispatch<SetStateAction<number | null>>;
   activeConversationId: number | null;
+  // Only meaningful on mobile, where the sidebar renders as a slide-out
+  // drawer instead of a permanently visible column - see the
+  // `@media (max-width: 768px)` rules in index.css.
+  isOpen?: boolean;
+  onClose?: () => void;
 }
 
 export default function Sidebar({
   setMessages,
   setConversationId,
   activeConversationId,
+  isOpen,
+  onClose,
 }: SidebarProps) {
   const { token } = useAuth();
 
@@ -52,6 +59,7 @@ export default function Sidebar({
 
       setMessages(mapped);
       setConversationId(conversation.id);
+      onClose?.(); // on mobile, picking a conversation should close the drawer
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load conversation");
     }
@@ -60,10 +68,11 @@ export default function Sidebar({
   function handleNewConversation() {
     setMessages([]);
     setConversationId(null);
+    onClose?.();
   }
 
   return (
-    <div className="sidebar">
+    <div className={`sidebar ${isOpen ? "open" : ""}`}>
       <button className="btn" onClick={handleNewConversation}>+ New conversation</button>
 
       {isLoading && <p className="muted-text">Loading...</p>}
