@@ -1,8 +1,7 @@
 // API layer for the prompt template endpoints.
 // Talks to the Spring Boot backend running at BASE_URL.
 
-// TODO: make this configurable via an environment variable (e.g. import.meta.env.VITE_API_BASE_URL)
-const BASE_URL = "http://localhost:8080";
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
 
 export interface PromptTemplate {
   id: number;
