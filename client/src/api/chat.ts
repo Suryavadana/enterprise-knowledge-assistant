@@ -15,12 +15,15 @@ export interface Citation {
   chunkIndex: number;
 }
 
+export type Confidence = "HIGH" | "MEDIUM" | "LOW" | "NONE";
+
 // Body returned by POST /api/chat on success (200).
 export interface ChatResponse {
   conversationId: number;
   reply: string;
   citations: Citation[];
   assistantMessageId: number;
+  confidence: Confidence;
 }
 
 // Sends a chat message, authenticated with the given bearer token. Resolves

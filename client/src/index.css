@@ -10,6 +10,9 @@
   --color-amber-bg: #fbf1e2;
   --color-border: #e0dcd3;
   --color-error: #b3432f;
+  --color-error-bg: rgba(179, 67, 47, 0.08);
+  --color-success: #3f7d5c;
+  --color-success-bg: #eaf2ee;
 
   --font-display: "Source Serif 4", Georgia, serif;
   --font-body: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -188,7 +191,7 @@ a {
 }
 
 .auth-error {
-  background: rgba(179, 67, 47, 0.08);
+  background: var(--color-error-bg);
   color: var(--color-error);
   border-radius: 6px;
   padding: 10px 12px;
@@ -453,6 +456,38 @@ a {
   border: 1px solid var(--color-amber);
   border-radius: 4px;
   padding: 2px 8px;
+}
+
+/* ---- Grounding confidence ---- */
+
+.confidence-row {
+  margin-top: 6px;
+}
+
+.confidence-badge {
+  display: inline-block;
+  font-size: 12px;
+  border-radius: 4px;
+  padding: 2px 8px;
+  border: 1px solid;
+}
+
+.confidence-badge.high {
+  color: var(--color-success);
+  background: var(--color-success-bg);
+  border-color: var(--color-success);
+}
+
+.confidence-badge.medium {
+  color: var(--color-amber);
+  background: var(--color-amber-bg);
+  border-color: var(--color-amber);
+}
+
+.confidence-badge.low {
+  color: var(--color-error);
+  background: var(--color-error-bg);
+  border-color: var(--color-error);
 }
 
 /* ---- Cards / Documents ---- */

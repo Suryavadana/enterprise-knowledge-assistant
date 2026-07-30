@@ -1,7 +1,7 @@
 import { useState } from "react";
 import type { Dispatch, KeyboardEvent, SetStateAction } from "react";
 import { sendMessage, submitFeedback } from "../api/chat";
-import type { Citation } from "../api/chat";
+import type { Citation, Confidence } from "../api/chat";
 import { useAuth } from "../context/AuthContext";
 import PromptTemplates from "./PromptTemplates";
 
@@ -11,7 +11,19 @@ export interface ChatMessage {
   citations?: Citation[];
   messageId?: number;
   feedback?: "UP" | "DOWN";
+  confidence?: Confidence;
 }
+
+// LOW and NONE share the same treatment - by the time grounding confidence
+// is that low, the distinction between "barely supported" and "not
+// supported at all" isn't worth a separate visual language; both just need
+// to read as "double check this one."
+const CONFIDENCE_DISPLAY: Record<Confidence, { className: string; label: string }> = {
+  HIGH: { className: "high", label: "Well-grounded" },
+  MEDIUM: { className: "medium", label: "Partially grounded" },
+  LOW: { className: "low", label: "May not be supported by your documents" },
+  NONE: { className: "low", label: "May not be supported by your documents" },
+};
 
 // Feather-style thumb icons. They use stroke="currentColor" (no fill) so the
 // feedback-btn CSS classes can drive their color, the same way any other
@@ -87,6 +99,7 @@ export default function ChatWindow({
           content: response.reply,
           citations: response.citations,
           messageId: response.assistantMessageId,
+          confidence: response.confidence,
         },
       ]);
     } catch (err) {
@@ -145,6 +158,13 @@ export default function ChatWindow({
                       {filename}
                     </span>
                   ))}
+                </div>
+              )}
+              {message.confidence && (
+                <div className="confidence-row">
+                  <span className={`confidence-badge ${CONFIDENCE_DISPLAY[message.confidence].className}`}>
+                    {CONFIDENCE_DISPLAY[message.confidence].label}
+                  </span>
                 </div>
               )}
               {message.messageId !== undefined && (

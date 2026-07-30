@@ -17,6 +17,7 @@ import com.example.server.dto.ChatRequest;
 import com.example.server.dto.ChatResponse;
 import com.example.server.dto.Citation;
 import com.example.server.dto.GeminiMessage;
+import com.example.server.dto.GroundingConfidence;
 import com.example.server.dto.RetrievedChunk;
 import com.example.server.entity.Conversation;
 import com.example.server.entity.Message;
@@ -81,8 +82,9 @@ public class ChatController {
         assistantMessage = messageRepository.save(assistantMessage);
 
         List<Citation> citations = toCitations(chunks);
+        GroundingConfidence confidence = retrievalService.computeGroundingConfidence(chunks);
         return ResponseEntity.ok(
-                new ChatResponse(conversation.getId(), reply, assistantMessage.getId(), citations));
+                new ChatResponse(conversation.getId(), reply, assistantMessage.getId(), citations, confidence));
     }
 
     private Conversation resolveConversation(Long conversationId, User user) {
