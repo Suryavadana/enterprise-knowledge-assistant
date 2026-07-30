@@ -1,8 +1,7 @@
 // API layer for the document upload endpoint.
 // Talks to the Spring Boot backend running at BASE_URL.
 
-// TODO: make this configurable via an environment variable (e.g. import.meta.env.VITE_API_BASE_URL)
-const BASE_URL = "http://localhost:8080";
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
 
 // Body returned by POST /api/documents/upload on success (200).
 export interface DocumentSummary {

@@ -193,6 +193,12 @@ export default function LandingPage({ onGetStarted }: LandingPageProps) {
 
       <footer className="landing-footer">
         <p className="muted-text">Built with React, Spring Boot, and Gemini</p>
+        <p className="muted-text landing-footer-credit">
+          Built by Surya Vadana ·{" "}
+          <a href="https://github.com/Suryavadana" target="_blank" rel="noopener noreferrer">
+            github.com/Suryavadana
+          </a>
+        </p>
       </footer>
     </div>
   );

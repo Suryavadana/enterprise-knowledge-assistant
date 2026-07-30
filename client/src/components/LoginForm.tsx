@@ -37,7 +37,8 @@ export default function LoginForm() {
 
   return (
     <div className="auth-card">
-      <h1>Log in</h1>
+      <h1 className="auth-logo">Enterprise Knowledge Assistant</h1>
+      <p className="auth-subtitle">Sign in to your account</p>
       <form onSubmit={handleSubmit}>
         <div className="form-field">
           <label htmlFor="email">Email</label>
@@ -61,9 +62,9 @@ export default function LoginForm() {
           />
         </div>
 
-        {error && <p className="error-text">{error}</p>}
+        {error && <p className="auth-error">{error}</p>}
 
-        <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
+        <button type="submit" className="btn btn-primary btn-block" disabled={isSubmitting}>
           {isSubmitting ? "Logging in..." : "Log in"}
         </button>
       </form>

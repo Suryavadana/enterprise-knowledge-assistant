@@ -125,6 +125,12 @@ export default function ChatWindow({
   return (
     <div className="chat-window">
       <div className="chat-messages">
+        {messages.length === 0 && (
+          <div className="chat-empty">
+            <h2>Start a conversation</h2>
+            <p>Ask a question about your uploaded documents</p>
+          </div>
+        )}
         {messages.map((message, index) => (
           <div key={index} className={`message-row ${message.role}`}>
             <div className="message-bubble">

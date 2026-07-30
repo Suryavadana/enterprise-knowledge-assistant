@@ -36,7 +36,8 @@ export default function SignupForm() {
 
   return (
     <div className="auth-card">
-      <h1>Sign up</h1>
+      <h1 className="auth-logo">Enterprise Knowledge Assistant</h1>
+      <p className="auth-subtitle">Create your account</p>
       <form onSubmit={handleSubmit}>
         <div className="form-field">
           <label htmlFor="name">Name</label>
@@ -71,9 +72,9 @@ export default function SignupForm() {
           />
         </div>
 
-        {error && <p className="error-text">{error}</p>}
+        {error && <p className="auth-error">{error}</p>}
 
-        <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
+        <button type="submit" className="btn btn-primary btn-block" disabled={isSubmitting}>
           {isSubmitting ? "Signing up..." : "Sign up"}
         </button>
       </form>

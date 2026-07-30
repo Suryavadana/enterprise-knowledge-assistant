@@ -119,10 +119,11 @@ a {
 
 .form-field input {
   border: 1px solid var(--color-border);
-  border-radius: 4px;
-  padding: 8px 10px;
+  border-radius: 6px;
+  padding: 11px 14px;
   background: var(--color-paper-raised);
   color: var(--color-ink);
+  transition: border-color 0.15s ease;
 }
 
 .form-field input:focus,
@@ -133,12 +134,13 @@ a {
 
 .form-field textarea {
   border: 1px solid var(--color-border);
-  border-radius: 4px;
-  padding: 8px 10px;
+  border-radius: 6px;
+  padding: 11px 14px;
   background: var(--color-paper-raised);
   color: var(--color-ink);
   font-family: inherit;
   resize: vertical;
+  transition: border-color 0.15s ease;
 }
 
 /* ---- Auth pages ---- */
@@ -155,16 +157,40 @@ a {
 
 .auth-card {
   width: 100%;
-  max-width: 360px;
+  max-width: 420px;
   background: var(--color-paper-raised);
   border: 1px solid var(--color-border);
-  border-radius: 6px;
-  padding: 32px;
+  border-radius: 10px;
+  padding: 40px 36px;
+  box-shadow: 0 12px 32px rgba(26, 35, 50, 0.08);
 }
 
-.auth-card h1 {
-  font-size: 22px;
-  margin-bottom: 24px;
+.auth-logo {
+  font-size: 18px;
+  text-align: center;
+  margin: 0 0 6px;
+}
+
+.auth-subtitle {
+  font-size: 14px;
+  color: #767066;
+  text-align: center;
+  margin: 0 0 28px;
+}
+
+.auth-error {
+  background: rgba(179, 67, 47, 0.08);
+  color: var(--color-error);
+  border-radius: 6px;
+  padding: 10px 12px;
+  font-size: 13px;
+  margin: 0 0 20px;
+}
+
+.btn-block {
+  width: 100%;
+  padding: 12px 16px;
+  font-size: 15px;
 }
 
 /* ---- Sidebar ---- */
@@ -223,9 +249,31 @@ a {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 20px;
   overflow-y: auto;
   padding-bottom: 12px;
+}
+
+.chat-empty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 8px;
+  padding: 48px 24px;
+}
+
+.chat-empty h2 {
+  font-size: 20px;
+  color: var(--color-ink);
+}
+
+.chat-empty p {
+  font-size: 14px;
+  color: #767066;
+  margin: 0;
 }
 
 .message-row {
@@ -241,9 +289,10 @@ a {
 }
 
 .message-bubble {
-  max-width: 65%;
-  padding: 10px 14px;
-  border-radius: 4px;
+  max-width: 72%;
+  padding: 14px 18px;
+  border-radius: 8px;
+  line-height: 1.5;
 }
 
 .message-row.user .message-bubble {
@@ -255,6 +304,7 @@ a {
   background: var(--color-paper-raised);
   border: 1px solid var(--color-border);
   color: var(--color-ink);
+  box-shadow: 0 2px 8px rgba(26, 35, 50, 0.05);
 }
 
 .message-role {
@@ -269,8 +319,8 @@ a {
 
 .feedback-row {
   display: flex;
-  gap: 4px;
-  margin-top: 8px;
+  gap: 6px;
+  margin-top: 10px;
 }
 
 .feedback-btn {
@@ -346,18 +396,21 @@ a {
 
 .chat-input-row {
   display: flex;
-  gap: 8px;
+  align-items: center;
+  gap: 10px;
   border-top: 1px solid var(--color-border);
-  padding-top: 16px;
+  padding-top: 20px;
+  box-shadow: 0 -4px 12px rgba(26, 35, 50, 0.03);
 }
 
 .chat-input-row input {
   flex: 1;
   border: 1px solid var(--color-border);
-  border-radius: 4px;
-  padding: 10px 12px;
+  border-radius: 8px;
+  padding: 12px 16px;
   background: var(--color-paper-raised);
   color: var(--color-ink);
+  transition: border-color 0.15s ease;
 }
 
 .chat-input-row input:focus {
@@ -365,10 +418,14 @@ a {
   border-color: var(--color-slate);
 }
 
+.chat-input-row .btn {
+  padding: 12px 20px;
+}
+
 /* ---- Citations ---- */
 
 .citations {
-  margin-top: 8px;
+  margin-top: 10px;
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
@@ -664,6 +721,18 @@ a {
   padding: 24px 0 48px;
   border-top: 1px solid var(--color-border);
   text-align: center;
+}
+
+.landing-footer p {
+  margin: 0;
+}
+
+.landing-footer p.landing-footer-credit {
+  margin-top: 6px;
+}
+
+.landing-footer-credit a {
+  color: inherit;
 }
 
 @media (max-width: 720px) {
